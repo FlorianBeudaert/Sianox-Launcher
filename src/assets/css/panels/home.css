@@ -37,7 +37,7 @@
 
 .server-status-text {
     font-size: 0.6rem;
-    color: #1AC707;
+    color: var(--element-color);
 }
 
 .server-status-infos .red {
@@ -268,7 +268,13 @@
     font-size: 2rem;
     font-weight: bolder;
     padding: 0 1.5rem;
-    pointer-events: none;
+    height: 100%;
+}
+
+.play-btn:hover {
+    background: var(--element-color);
+    color: var(--color);
+    cursor: pointer;
 }
 
 .instance-select {
@@ -277,13 +283,17 @@
     position: absolute;
     right: -3;
     top: -2;
-    color: var(--element-color);
+    color: var(--color);
     font-size: 1rem;
     height: calc(100% - 1px);
     border: solid 3px var(--element-color);
     text-align: center;
     border-radius: 15px;
     padding: 0 0.5rem;
+}
+
+.instance-select:hover {
+    background: var(--element-color);
     cursor: pointer;
 }
 

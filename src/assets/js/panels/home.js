@@ -27,7 +27,7 @@ class Home {
                 blockNews.classList.add('news-block');
                 blockNews.innerHTML = `
                     <div class="news-header">
-                        <img class="server-status-icon" src="assets/images/icon.png">
+                        <img class="server-status-icon" src="assets/images/svgs/news.svg">
                         <div class="header-text">
                             <div class="title">Aucun news n'ai actuellement disponible.</div>
                         </div>
@@ -49,7 +49,7 @@ class Home {
                     blockNews.classList.add('news-block');
                     blockNews.innerHTML = `
                         <div class="news-header">
-                            <img class="server-status-icon" src="assets/images/icon.png">
+                            <img class="server-status-icon" src="assets/images/svgs/news.svg">
                             <div class="header-text">
                                 <div class="title">${News.title}</div>
                             </div>
@@ -72,7 +72,7 @@ class Home {
             blockNews.classList.add('news-block');
             blockNews.innerHTML = `
                 <div class="news-header">
-                        <img class="server-status-icon" src="assets/images/icon.png">
+                        <img class="server-status-icon" src="assets/images/svgs/news.svg">
                         <div class="header-text">
                             <div class="title">Error.</div>
                         </div>
