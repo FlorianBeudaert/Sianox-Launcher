@@ -202,6 +202,10 @@
     filter: var(--svg-color);
 }
 
+.social-block:hover .icon-github {
+    filter: drop-shadow(0 0 0 var(--element-hover)) brightness(0) saturate(100%) invert(38%) sepia(99%) saturate(749%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
 /*******************************************************************************
  *                                                                             *
  * sidebar                                                                     *
@@ -249,51 +253,53 @@
     align-items: center;
 }
 
-.play-instance {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    border: solid 3px var(--element-color);
-    border-radius: 15px;
-    height: 3.2rem;
-    padding-right: 1.9rem;
-}
 
 .play-btn {
-    border: none;
-    border-radius: 10px;
-    background: none;
+    background: var(--element-color);
     color: var(--color);
+    border-style: solid;
+    border-color: var(--element-hover);
+    border-width: 3px 0 3px 3px;
+    border-radius: 15px 0 0 15px;
     font-size: 2rem;
     font-weight: bolder;
     padding: 0 1.5rem;
     height: 100%;
 }
-
 .play-btn:hover {
-    background: var(--element-color);
+    background: var(--element-hover);
     color: var(--color);
     cursor: pointer;
+}
+
+.play-instance {
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    padding: 0 2rem 0 0;
+    background: none;
+    height: 3rem;
 }
 
 .instance-select {
     display: flex;
     align-items: center;
-    position: absolute;
-    right: -3;
-    top: -2;
     color: var(--color);
     font-size: 1rem;
-    height: calc(100% - 1px);
-    border: solid 3px var(--element-color);
+    height: 100%;
+    border-style: solid;
+    border-color: var(--element-hover);
+    border-width: 3px 3px 3px 3px;
+    border-radius: 0 10px 10px 0;
     text-align: center;
-    border-radius: 15px;
+    box-sizing: border-box;
     padding: 0 0.5rem;
+    background: var(--element-color);
 }
 
 .instance-select:hover {
-    background: var(--element-color);
+    background: var(--element-hover);
+    color: var(--color);
     cursor: pointer;
 }
 
@@ -330,6 +336,11 @@
     font-size: 3rem;
     color: var(--element-color);
     margin: 0 1.5rem;
+}
+
+.settings-btn:hover {
+    cursor: pointer;
+    color: var(--element-hover);
 }
 
 .instance-popup {
