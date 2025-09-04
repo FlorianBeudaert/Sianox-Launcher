@@ -97,7 +97,12 @@ async function setStatus(opt) {
     let { ip, port, nameServer } = opt
     nameServerElement.innerHTML = nameServer
     let status = new Status(ip, port);
-    let statusServer = await status.getStatus().then(res => res).catch(err => err);
+
+    let statusServer;
+    for (let i = 0; i < 2; i++) {
+        statusServer = await status.getStatus().then(res => res).catch(err => err);
+        if (!statusServer.error) break;
+    }
 
     if (!statusServer.error) {
         statusServerElement.classList.remove('red')
@@ -109,9 +114,9 @@ async function setStatus(opt) {
         statusServerElement.innerHTML = `Ferme - 0 ms`
         document.querySelector('.status-player-count').classList.add('red')
         playersOnline.innerHTML = '0'
+        console.log('Erreur de connexion au serveur:', statusServer.error)
     }
 }
-
 
 export {
     appdata as appdata,

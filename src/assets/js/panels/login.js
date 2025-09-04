@@ -20,7 +20,7 @@ class Login {
                 this.getAZauth();
             }
         }
-        
+
         document.querySelector('.cancel-home').addEventListener('click', () => {
             document.querySelector('.cancel-home').style.display = 'none'
             changePanel('settings')
@@ -98,8 +98,8 @@ class Login {
                 });
                 return;
             }
-            await this.saveData(MojangConnect)
-            popupLogin.closePopup();
+            const success = await this.saveData(MojangConnect);
+            if (success) popupLogin.closePopup();
         });
     }
 
@@ -193,19 +193,29 @@ class Login {
 
     async saveData(connectionData) {
         let configClient = await this.db.readData('configClient');
-        let account = await this.db.createData('accounts', connectionData)
-        let instanceSelect = configClient.instance_selct
-        let instancesList = await config.getInstanceList()
+        let allAccounts = await this.db.readAllData('accounts');
+        if (allAccounts.some(acc => acc.name === connectionData.name)) {
+            let popupError = new popup();
+            popupError.openPopup({
+                title: 'Erreur',
+                content: 'Un compte avec ce pseudo existe déjà.',
+                options: true
+            });
+            return false;
+        }
+        let account = await this.db.createData('accounts', connectionData);
+        let instanceSelect = configClient.instance_selct;
+        let instancesList = await config.getInstanceList();
         configClient.account_selected = account.ID;
 
         for (let instance of instancesList) {
             if (instance.whitelistActive) {
-                let whitelist = instance.whitelist.find(whitelist => whitelist == account.name)
+                let whitelist = instance.whitelist.find(whitelist => whitelist == account.name);
                 if (whitelist !== account.name) {
                     if (instance.name == instanceSelect) {
-                        let newInstanceSelect = instancesList.find(i => i.whitelistActive == false)
-                        configClient.instance_selct = newInstanceSelect.name
-                        await setStatus(newInstanceSelect.status)
+                        let newInstanceSelect = instancesList.find(i => i.whitelistActive == false);
+                        configClient.instance_selct = newInstanceSelect.name;
+                        await setStatus(newInstanceSelect.status);
                     }
                 }
             }
@@ -215,6 +225,7 @@ class Login {
         await addAccount(account);
         await accountSelect(account);
         changePanel('home');
+        return true;
     }
 }
 export default Login;

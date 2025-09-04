@@ -9,12 +9,12 @@
         "email": "contact@luuxis.fr",
         "url": "https://github.com/luuxis"
     },
-    "url": "http://localhost/Personnel/Sianox-Launcher-WEB-Folder/",
+    "url": "http://sianox.atwebpages.com",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
         "build": "node build.js --obf=true --build=platform",
-        "icon": "node build.js --icon=http://localhost/ChatGPT%20Image%204%20sept.%202025,%2013_5.png"
+        "icon": "node build.js --icon=http://localhost/logo.png"
     },
     "license": "CCANC",
     "nodemonConfig": {
