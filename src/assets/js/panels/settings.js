@@ -46,28 +46,38 @@ class Settings {
         })
     }
 
-    accounts() {
+    async accounts() {
         document.querySelector('.accounts-list').addEventListener('click', async e => {
-            let popupAccount = new popup()
+            let popupAccount = new popup();
             try {
-                let id = e.target.id
+                let id = e.target.id;
                 if (e.target.classList.contains('account')) {
                     popupAccount.openPopup({
                         title: 'Connexion',
                         content: 'Veuillez patienter...',
                         color: 'var(--color)'
-                    })
+                    });
 
                     if (id == 'add') {
-                        document.querySelector('.cancel-home').style.display = 'inline'
-                        return changePanel('login')
+                        document.querySelector('.cancel-home').style.display = 'inline';
+                        window.fromSettings = true;
+                        return changePanel('login');
                     }
 
                     let account = await this.db.readData('accounts', id);
                     let configClient = await this.setInstance(account);
-                    await accountSelect(account);
                     configClient.account_selected = account.ID;
-                    return await this.db.updateData('configClient', configClient);
+                    await this.db.updateData('configClient', configClient);
+                    await accountSelect(account);
+
+                    if (account?.profile?.skins?.[0]?.base64) {
+                        const { skin2D } = require('../utils/skin.js');
+                        new skin2D().creatHeadTexture(account.profile.skins[0].base64).then(skin => {
+                            document.querySelector('.player-head').style.backgroundImage = `url(${skin})`;
+                        });
+                    } else {
+                        document.querySelector('.player-head').style.backgroundImage = '';
+                    }
                 }
 
                 if (e.target.classList.contains("delete-profile")) {
@@ -75,7 +85,7 @@ class Settings {
                         title: 'Connexion',
                         content: 'Veuillez patienter...',
                         color: 'var(--color)'
-                    })
+                    });
                     await this.db.deleteData('accounts', id);
                     let deleteProfile = document.getElementById(`${id}`);
                     let accountListElement = document.querySelector('.accounts-list');
@@ -84,22 +94,30 @@ class Settings {
                     if (accountListElement.children.length == 1) return changePanel('login');
 
                     let configClient = await this.db.readData('configClient');
-
                     if (configClient.account_selected == id) {
                         let allAccounts = await this.db.readAllData('accounts');
-                        configClient.account_selected = allAccounts[0].ID
-                        accountSelect(allAccounts[0]);
+                        configClient.account_selected = allAccounts[0].ID;
+                        await accountSelect(allAccounts[0]);
                         let newInstanceSelect = await this.setInstance(allAccounts[0]);
-                        configClient.instance_selct = newInstanceSelect.instance_selct
-                        return await this.db.updateData('configClient', configClient);
+                        configClient.instance_selct = newInstanceSelect.instance_selct;
+                        await this.db.updateData('configClient', configClient);
+
+                        if (allAccounts[0]?.profile?.skins?.[0]?.base64) {
+                            const { skin2D } = require('../utils/skin.js');
+                            new skin2D().creatHeadTexture(allAccounts[0].profile.skins[0].base64).then(skin => {
+                                document.querySelector('.player-head').style.backgroundImage = `url(${skin})`;
+                            });
+                        } else {
+                            document.querySelector('.player-head').style.backgroundImage = '';
+                        }
                     }
                 }
             } catch (err) {
-                console.error(err)
+                console.error(err);
             } finally {
                 popupAccount.closePopup();
             }
-        })
+        });
     }
 
     async setInstance(auth) {
