@@ -14,8 +14,8 @@ $instance['Chicken Modpack'] = array_merge($instance['Chicken Modpack'], array(
         'saves',
         'screenshots',
         'shaderpacks',
-        'servers.dat'
-        'schematics'
+        'servers.dat',
+        'schematics',
         'W-OVERFLOW',
         'options.txt',
         'optionsof.txt',
