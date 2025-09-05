@@ -54,3 +54,9 @@
     padding: 0.4rem 1rem;
     margin-top: 10px;
 }
+
+.cancel:hover {
+    background: var(--element-hover);
+    color: var(--color);
+    cursor: pointer;
+}

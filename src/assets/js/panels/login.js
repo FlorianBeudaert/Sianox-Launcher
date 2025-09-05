@@ -13,63 +13,69 @@ class Login {
         this.config = config;
         this.db = new database();
 
-        if (typeof this.config.online == 'boolean') {
-            this.config.online ? this.getMicrosoft() : this.getCrack()
-        } else if (typeof this.config.online == 'string') {
-            if (this.config.online.match(/^(http|https):\/\/[^ "]+$/)) {
-                this.getAZauth();
-            }
-        }
+        this.hideAllPanels();
+        document.querySelector('.login-home').style.display = 'block';
 
-        document.querySelector('.cancel-home').addEventListener('click', () => {
-            document.querySelector('.cancel-home').style.display = 'none'
-            changePanel('settings')
-        })
+        document.querySelector('.connect-home').onclick = () => this.getMicrosoft();
+        document.querySelector('.connect-offline-home').onclick = () => this.getCrack();
+        document.querySelector('.cancel-home').onclick = () => {
+            document.querySelector('.cancel-home').style.display = 'none';
+            this.hideAllPanels();
+            document.querySelector('.login-home').style.display = 'block';
+            if (window.fromSettings) {
+                window.fromSettings = false;
+                changePanel('settings');
+            }
+        };
+    }
+
+    hideAllPanels() {
+        document.querySelector('.login-home').style.display = 'none';
+        document.querySelector('.login-offline').style.display = 'none';
+        document.querySelector('.login-AZauth').style.display = 'none';
+        document.querySelector('.login-AZauth-A2F').style.display = 'none';
     }
 
     async getMicrosoft() {
-        console.log('Initializing Microsoft login...');
+        this.hideAllPanels();
         let popupLogin = new popup();
-        let loginHome = document.querySelector('.login-home');
-        let microsoftBtn = document.querySelector('.connect-home');
-        loginHome.style.display = 'block';
+        popupLogin.openPopup({
+            title: 'Connexion',
+            content: 'Veuillez patienter...',
+            color: 'var(--color)'
+        });
 
-        microsoftBtn.addEventListener("click", () => {
+        try {
+            const account_connect = await ipcRenderer.invoke('Microsoft-window', this.config.client_id);
+            popupLogin.closePopup();
+            if (account_connect == 'cancel' || !account_connect) {
+                document.querySelector('.login-home').style.display = 'block';
+                return;
+            }
+            await this.saveData(account_connect);
+        } catch (err) {
             popupLogin.openPopup({
-                title: 'Connexion',
-                content: 'Veuillez patienter...',
-                color: 'var(--color)'
+                title: 'Erreur',
+                content: err,
+                options: true
             });
-
-            ipcRenderer.invoke('Microsoft-window', this.config.client_id).then(async account_connect => {
-                if (account_connect == 'cancel' || !account_connect) {
-                    popupLogin.closePopup();
-                    return;
-                } else {
-                    await this.saveData(account_connect)
-                    popupLogin.closePopup();
-                }
-
-            }).catch(err => {
-                popupLogin.openPopup({
-                    title: 'Erreur',
-                    content: err,
-                    options: true
-                });
-            });
-        })
+            this.hideAllPanels();
+            document.querySelector('.login-home').style.display = 'block';
+        }
     }
 
     async getCrack() {
-        console.log('Initializing offline login...');
-        let popupLogin = new popup();
-        let loginOffline = document.querySelector('.login-offline');
+        this.hideAllPanels();
+        document.querySelector('.login-offline').style.display = 'block';
+        const popupLogin = new popup();
+        const emailOffline = document.querySelector('.email-offline');
+        const connectOffline = document.querySelector('.connect-offline');
+        const cancelOffline = document.querySelector('.cancel-offline');
 
-        let emailOffline = document.querySelector('.email-offline');
-        let connectOffline = document.querySelector('.connect-offline');
-        loginOffline.style.display = 'block';
+        connectOffline.onclick = null;
+        cancelOffline.onclick = null;
 
-        connectOffline.addEventListener('click', async () => {
+        connectOffline.onclick = async () => {
             if (emailOffline.value.length < 3) {
                 popupLogin.openPopup({
                     title: 'Erreur',
@@ -78,7 +84,6 @@ class Login {
                 });
                 return;
             }
-
             if (emailOffline.value.match(/ /g)) {
                 popupLogin.openPopup({
                     title: 'Erreur',
@@ -87,9 +92,7 @@ class Login {
                 });
                 return;
             }
-
             let MojangConnect = await Mojang.login(emailOffline.value);
-
             if (MojangConnect.error) {
                 popupLogin.openPopup({
                     title: 'Erreur',
@@ -100,95 +103,14 @@ class Login {
             }
             const success = await this.saveData(MojangConnect);
             if (success) popupLogin.closePopup();
-        });
-    }
+        };
 
-    async getAZauth() {
-        console.log('Initializing AZauth login...');
-        let AZauthClient = new AZauth(this.config.online);
-        let PopupLogin = new popup();
-        let loginAZauth = document.querySelector('.login-AZauth');
-        let loginAZauthA2F = document.querySelector('.login-AZauth-A2F');
-
-        let AZauthEmail = document.querySelector('.email-AZauth');
-        let AZauthPassword = document.querySelector('.password-AZauth');
-        let AZauthA2F = document.querySelector('.A2F-AZauth');
-        let connectAZauthA2F = document.querySelector('.connect-AZauth-A2F');
-        let AZauthConnectBTN = document.querySelector('.connect-AZauth');
-        let AZauthCancelA2F = document.querySelector('.cancel-AZauth-A2F');
-
-        loginAZauth.style.display = 'block';
-
-        AZauthConnectBTN.addEventListener('click', async () => {
-            PopupLogin.openPopup({
-                title: 'Connexion en cours...',
-                content: 'Veuillez patienter...',
-                color: 'var(--color)'
-            });
-
-            if (AZauthEmail.value == '' || AZauthPassword.value == '') {
-                PopupLogin.openPopup({
-                    title: 'Erreur',
-                    content: 'Veuillez remplir tous les champs.',
-                    options: true
-                });
-                return;
-            }
-
-            let AZauthConnect = await AZauthClient.login(AZauthEmail.value, AZauthPassword.value);
-
-            if (AZauthConnect.error) {
-                PopupLogin.openPopup({
-                    title: 'Erreur',
-                    content: AZauthConnect.message,
-                    options: true
-                });
-                return;
-            } else if (AZauthConnect.A2F) {
-                loginAZauthA2F.style.display = 'block';
-                loginAZauth.style.display = 'none';
-                PopupLogin.closePopup();
-
-                AZauthCancelA2F.addEventListener('click', () => {
-                    loginAZauthA2F.style.display = 'none';
-                    loginAZauth.style.display = 'block';
-                });
-
-                connectAZauthA2F.addEventListener('click', async () => {
-                    PopupLogin.openPopup({
-                        title: 'Connexion en cours...',
-                        content: 'Veuillez patienter...',
-                        color: 'var(--color)'
-                    });
-
-                    if (AZauthA2F.value == '') {
-                        PopupLogin.openPopup({
-                            title: 'Erreur',
-                            content: 'Veuillez entrer le code A2F.',
-                            options: true
-                        });
-                        return;
-                    }
-
-                    AZauthConnect = await AZauthClient.login(AZauthEmail.value, AZauthPassword.value, AZauthA2F.value);
-
-                    if (AZauthConnect.error) {
-                        PopupLogin.openPopup({
-                            title: 'Erreur',
-                            content: AZauthConnect.message,
-                            options: true
-                        });
-                        return;
-                    }
-
-                    await this.saveData(AZauthConnect)
-                    PopupLogin.closePopup();
-                });
-            } else if (!AZauthConnect.A2F) {
-                await this.saveData(AZauthConnect)
-                PopupLogin.closePopup();
-            }
-        });
+        cancelOffline.style.display = 'inline';
+        cancelOffline.onclick = () => {
+            cancelOffline.style.display = 'none';
+            this.hideAllPanels();
+            document.querySelector('.login-home').style.display = 'block';
+        };
     }
 
     async saveData(connectionData) {
@@ -224,6 +146,7 @@ class Login {
         await this.db.updateData('configClient', configClient);
         await addAccount(account);
         await accountSelect(account);
+        this.hideAllPanels();
         changePanel('home');
         return true;
     }
